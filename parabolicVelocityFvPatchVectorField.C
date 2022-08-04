@@ -23,11 +23,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "parabolicVelocityFvPatchVectorField.H"
 #include "addToRunTimeSelectionTable.H"
+#include "boundBox.H"
 #include "fvPatchFieldMapper.H"
-#include "volFields.H"
+#include "parabolicVelocityFvPatchVectorField.H"
 #include "surfaceFields.H"
+#include "vectorField.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
@@ -158,16 +160,11 @@ void Foam::parabolicVelocityFvPatchVectorField::updateCoeffs()
 {
     if (updated())
     {
-        return;
+      return;
     }
 
-    fixedValueFvPatchVectorField::operator==
-    (
-        data_
-      + fieldData_
-      + scalarData_*timeVsData_->value(t())
-    );
-
+    fixedValueFvPatchVectorField::operator==(
+        data_ + fieldData_ + scalarData_ * timeVsData_->value(t()));
 
     fixedValueFvPatchVectorField::updateCoeffs();
 }
