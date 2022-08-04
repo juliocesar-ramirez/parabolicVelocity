@@ -1,1 +1,4 @@
 * ParabolicVelocity
+#+begin_src latex
+$ Vmax*(1.0-((y-c)/r)^2)$
+#+end_src
