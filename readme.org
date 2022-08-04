@@ -1,2 +1,4 @@
 * ParabolicVelocity
 $ Vmax*(1.0-((y-c)/r)^2)$
+http://www.wolfdynamics.com/wiki/programming_BC_highlevel.pdf
+http://www.tfd.chalmers.se/~hani/kurser/OS_CFD_2020/lectureNotes/implementParabolicVelocityFixedValueBoundaryCondition.pdf

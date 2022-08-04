@@ -96,9 +96,16 @@ class parabolicVelocityFvPatchVectorField
         //- Single valued scalar quantity, e.g. a coefficient
         scalar scalarData_;
 
+        scalar Vmax_;
+
         //- Single valued Type quantity, e.g. reference pressure pRefValue_
         //  Other options include vector, tensor
         vector data_;
+
+        // vector de la direccion, largo de la parabola
+        vector y_;
+        // vector de la direccion del flujo
+        vector n_;
 
         //- Field of Types, typically defined across patch faces
         //  e.g. total pressure p0_.  Other options include vectorField
@@ -116,75 +123,48 @@ class parabolicVelocityFvPatchVectorField
         //- Boolean for true/false, e.g. specify if flow rate is volumetric_
         bool boolData_;
 
-
-    // Private Member Functions
+        // Private Member Functions
 
         //- Return current time
         scalar t() const;
 
+      public:
+        //- Runtime type information
+        TypeName("parabolicVelocity");
 
-public:
-
-    //- Runtime type information
-    TypeName("parabolicVelocity");
-
-
-    // Constructors
+        // Constructors
 
         //- Construct from patch and internal field
-        parabolicVelocityFvPatchVectorField
-        (
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&
-        );
+        parabolicVelocityFvPatchVectorField(
+            const fvPatch &, const DimensionedField<vector, volMesh> &);
 
         //- Construct from patch, internal field and dictionary
-        parabolicVelocityFvPatchVectorField
-        (
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&,
-            const dictionary&
-        );
+        parabolicVelocityFvPatchVectorField(
+            const fvPatch &, const DimensionedField<vector, volMesh> &,
+            const dictionary &);
 
         //- Construct by mapping given fixedValueTypeFvPatchField
         //  onto a new patch
-        parabolicVelocityFvPatchVectorField
-        (
-            const parabolicVelocityFvPatchVectorField&,
-            const fvPatch&,
-            const DimensionedField<vector, volMesh>&,
-            const fvPatchFieldMapper&
-        );
+        parabolicVelocityFvPatchVectorField(
+            const parabolicVelocityFvPatchVectorField &, const fvPatch &,
+            const DimensionedField<vector, volMesh> &,
+            const fvPatchFieldMapper &);
 
         //- Disallow copy without setting internal field reference
-        parabolicVelocityFvPatchVectorField
-        (
-            const parabolicVelocityFvPatchVectorField&
-        ) = delete;
+        parabolicVelocityFvPatchVectorField(
+            const parabolicVelocityFvPatchVectorField &) = delete;
 
         //- Copy constructor setting internal field reference
-        parabolicVelocityFvPatchVectorField
-        (
-            const parabolicVelocityFvPatchVectorField&,
-            const DimensionedField<vector, volMesh>&
-        );
+        parabolicVelocityFvPatchVectorField(
+            const parabolicVelocityFvPatchVectorField &,
+            const DimensionedField<vector, volMesh> &);
 
         //- Construct and return a clone setting internal field reference
-        virtual tmp<fvPatchVectorField> clone
-        (
-            const DimensionedField<vector, volMesh>& iF
-        ) const
-        {
-            return tmp<fvPatchVectorField>
-            (
-                new parabolicVelocityFvPatchVectorField
-                (
-                    *this,
-                    iF
-                )
-            );
+        virtual tmp<fvPatchVectorField>
+        clone(const DimensionedField<vector, volMesh> &iF) const {
+          return tmp<fvPatchVectorField>(
+              new parabolicVelocityFvPatchVectorField(*this, iF));
         }
-
 
     // Member Functions
 

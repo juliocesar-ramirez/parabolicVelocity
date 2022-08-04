@@ -25,6 +25,7 @@ License
 
 #include "addToRunTimeSelectionTable.H"
 #include "boundBox.H"
+#include "dimensionedType.H"
 #include "fvPatchFieldMapper.H"
 #include "parabolicVelocityFvPatchVectorField.H"
 #include "surfaceFields.H"
@@ -41,93 +42,53 @@ Foam::scalar Foam::parabolicVelocityFvPatchVectorField::t() const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::parabolicVelocityFvPatchVectorField::
-parabolicVelocityFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(p, iF),
-    scalarData_(0.0),
-    data_(Zero),
-    fieldData_(p.size(), Zero),
-    timeVsData_(),
-    wordData_("wordDefault"),
-    labelData_(-1),
-    boolData_(false)
-{
+Foam::parabolicVelocityFvPatchVectorField::parabolicVelocityFvPatchVectorField(
+    const fvPatch &p, const DimensionedField<vector, volMesh> &iF)
+    : fixedValueFvPatchVectorField(p, iF), scalarData_(0.0), Vmax_(0.0),
+      data_(Zero), y_(Zero), n_(Zero), fieldData_(p.size(), Zero),
+      timeVsData_(), wordData_("wordDefault"), labelData_(-1),
+      boolData_(false) {}
+
+Foam::parabolicVelocityFvPatchVectorField::parabolicVelocityFvPatchVectorField(
+    const fvPatch &p, const DimensionedField<vector, volMesh> &iF,
+    const dictionary &dict)
+    : fixedValueFvPatchVectorField(p, iF),
+      scalarData_(dict.lookup<scalar>("scalarData")),
+      Vmax_(dict.lookup<scalar>("Vmax")), data_(dict.lookup<vector>("data")),
+      y_(dict.lookup<vector>("y")), n_(dict.lookup<vector>("n")),
+      fieldData_("fieldData", dict, p.size()),
+      timeVsData_(Function1<vector>::New("timeVsData", dict)),
+      wordData_(dict.lookupOrDefault<word>("wordName", "wordDefault")),
+      labelData_(-1), boolData_(false) {
+
+  fixedValueFvPatchVectorField::evaluate();
+
+  /*
+  // Initialise with the value entry if evaluation is not possible
+  fvPatchVectorField::operator=
+  (
+      vectorField("value", dict, p.size())
+  );
+  */
 }
 
+Foam::parabolicVelocityFvPatchVectorField::parabolicVelocityFvPatchVectorField(
+    const parabolicVelocityFvPatchVectorField &ptf, const fvPatch &p,
+    const DimensionedField<vector, volMesh> &iF,
+    const fvPatchFieldMapper &mapper)
+    : fixedValueFvPatchVectorField(ptf, p, iF, mapper),
+      scalarData_(ptf.scalarData_), Vmax_(ptf.Vmax_), data_(ptf.data_),
+      y_(ptf.y_), n_(ptf.n_), fieldData_(mapper(ptf.fieldData_)),
+      timeVsData_(ptf.timeVsData_, false), wordData_(ptf.wordData_),
+      labelData_(-1), boolData_(ptf.boolData_) {}
 
-Foam::parabolicVelocityFvPatchVectorField::
-parabolicVelocityFvPatchVectorField
-(
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const dictionary& dict
-)
-:
-    fixedValueFvPatchVectorField(p, iF),
-    scalarData_(dict.lookup<scalar>("scalarData")),
-    data_(dict.lookup<vector>("data")),
-    fieldData_("fieldData", dict, p.size()),
-    timeVsData_(Function1<vector>::New("timeVsData", dict)),
-    wordData_(dict.lookupOrDefault<word>("wordName", "wordDefault")),
-    labelData_(-1),
-    boolData_(false)
-{
-
-
-    fixedValueFvPatchVectorField::evaluate();
-
-    /*
-    // Initialise with the value entry if evaluation is not possible
-    fvPatchVectorField::operator=
-    (
-        vectorField("value", dict, p.size())
-    );
-    */
-}
-
-
-Foam::parabolicVelocityFvPatchVectorField::
-parabolicVelocityFvPatchVectorField
-(
-    const parabolicVelocityFvPatchVectorField& ptf,
-    const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
-    const fvPatchFieldMapper& mapper
-)
-:
-    fixedValueFvPatchVectorField(ptf, p, iF, mapper),
-    scalarData_(ptf.scalarData_),
-    data_(ptf.data_),
-    fieldData_(mapper(ptf.fieldData_)),
-    timeVsData_(ptf.timeVsData_, false),
-    wordData_(ptf.wordData_),
-    labelData_(-1),
-    boolData_(ptf.boolData_)
-{}
-
-
-Foam::parabolicVelocityFvPatchVectorField::
-parabolicVelocityFvPatchVectorField
-(
-    const parabolicVelocityFvPatchVectorField& ptf,
-    const DimensionedField<vector, volMesh>& iF
-)
-:
-    fixedValueFvPatchVectorField(ptf, iF),
-    scalarData_(ptf.scalarData_),
-    data_(ptf.data_),
-    fieldData_(ptf.fieldData_),
-    timeVsData_(ptf.timeVsData_, false),
-    wordData_(ptf.wordData_),
-    labelData_(-1),
-    boolData_(ptf.boolData_)
-{}
-
+Foam::parabolicVelocityFvPatchVectorField::parabolicVelocityFvPatchVectorField(
+    const parabolicVelocityFvPatchVectorField &ptf,
+    const DimensionedField<vector, volMesh> &iF)
+    : fixedValueFvPatchVectorField(ptf, iF), scalarData_(ptf.scalarData_),
+      Vmax_(ptf.Vmax_), data_(ptf.data_), y_(ptf.y_), n_(ptf.n_), fieldData_(ptf.fieldData_),
+      timeVsData_(ptf.timeVsData_, false), wordData_(ptf.wordData_),
+      labelData_(-1), boolData_(ptf.boolData_) {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -163,8 +124,19 @@ void Foam::parabolicVelocityFvPatchVectorField::updateCoeffs()
       return;
     }
 
+    boundBox bb(patch().patch().localPoints(), true);
+
+    vector vertice = 0.5*(bb.max() + bb.min());
+
+    vector radio = 0.5*(bb.max() - bb.min());
+
+    const vectorField& cellxy = patch().Cf();
+
+    scalarField part1 = ((cellxy - vertice) & y_)/(radio & y_);
+    
     fixedValueFvPatchVectorField::operator==(
-        data_ + fieldData_ + scalarData_ * timeVsData_->value(t()));
+        n_*Vmax_*(1-sqr(part1))
+    );
 
     fixedValueFvPatchVectorField::updateCoeffs();
 }
@@ -177,7 +149,10 @@ void Foam::parabolicVelocityFvPatchVectorField::write
 {
     fvPatchVectorField::write(os);
     writeEntry(os, "scalarData", scalarData_);
+    writeEntry(os, "Vmax", Vmax_);
     writeEntry(os, "data", data_);
+    writeEntry(os, "y", y_);
+    writeEntry(os, "n", n_);
     writeEntry(os, "fieldData", fieldData_);
     writeEntry(os, timeVsData_());
     writeEntry(os, "wordData", wordData_);
