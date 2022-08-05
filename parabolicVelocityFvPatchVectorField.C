@@ -51,7 +51,8 @@ Foam::parabolicVelocityFvPatchVectorField::parabolicVelocityFvPatchVectorField(
     const fvPatch &p, const DimensionedField<vector, volMesh> &iF,
     const dictionary &dict)
     : fixedValueFvPatchVectorField(p, iF), Vmax_(dict.lookup<scalar>("Vmax")),
-      y_(dict.lookup<vector>("y")), n_(dict.lookup<vector>("n")),
+      y_(dict.lookupOrDefault<vector>("y", vector(0, 1, 0))),
+      n_(dict.lookupOrDefault<vector>("n", vector(1, 0, 0))),
       wordData_(dict.lookupOrDefault<word>("wordName", "wordDefault")),
       labelData_(-1), boolData_(false) {
 
