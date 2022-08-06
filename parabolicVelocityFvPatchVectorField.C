@@ -109,9 +109,11 @@ void Foam::parabolicVelocityFvPatchVectorField::autoMap
 
   vector radio = 0.5 * (bb.max() - bb.min());
 
-  const vectorField &cellxy = patch().Cf();
+  const vectorField &cellxyz = patch().Cf();
 
-  scalarField part1 = ((cellxy - vertice) & y_) / (radio & y_);
+  scalarField part1 = ((cellxyz - vertice) & y_) / (radio & y_);
+
+  Info << part1;
 
   fixedValueFvPatchVectorField::operator==(n_ *Vmax_ *(1 - sqr(part1)));
 
